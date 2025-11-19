@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StoryForge AI - Story Idea Generator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .card-hover {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .card-hover:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .typing-effect {
+            overflow: hidden;
+            border-right: .15em solid #667eea;
+            white-space: nowrap;
+            animation: typing 3.5s steps(40, end), blink-caret .75s step-end infinite;
+        }
+        @keyframes typing {
+            from { width: 0 }
+            to { width: 100% }
+        }
+        @keyframes blink-caret {
+            from, to { border-color: transparent }
+            50% { border-color: #667eea; }
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="gradient-bg text-white shadow-lg">
+        <div class="container mx-auto px-4 py-6">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <i class="fas fa-feather-alt text-3xl"></i>
+                    <div>
+                        <h1 class="text-2xl font-bold">StoryForge AI</h1>
+                        <p class="text-purple-100 text-sm">Your Creative Story Idea Generator</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="text-sm bg-white/20 px-3 py-1 rounded-full">
+                        <i class="fas fa-sparkles mr-1"></i> Powered by AI
+                    </span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        <!-- Controls Section -->
+        <section class="mb-8">
+            <div class="bg-white rounded-xl shadow-md p-6">
+                <h2 class="text-xl font-semibold mb-4 text-gray-800">
+                    <i class="fas fa-sliders-h mr-2 text-purple-600"></i>Customize Your Story
+                </h2>
+                
+                <div class="grid md:grid-cols-3 gap-4 mb-6">
+                    <!-- Genre Selection -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Genre</label>
+                        <select id="genreSelect" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                            <option value="any">Any Genre</option>
+                            <option value="fantasy">Fantasy</option>
+                            <option value="scifi">Science Fiction</option>
+                            <option value="mystery">Mystery</option>
+                            <option value="romance">Romance</option>
+                            <option value="thriller">Thriller</option>
+                            <option value="horror">Horror</option>
+                            <option value="historical">Historical Fiction</option>
+                            <option value="comedy">Comedy</option>
+                        </select>
+                    </div>
+
+                    <!-- Complexity Level -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Complexity</label>
+                        <select id="complexitySelect" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                            <option value="simple">Simple (1-2 characters)</option>
+                            <option value="moderate">Moderate (3-4 characters)</option>
+                            <option value="complex">Complex (5+ characters)</option>
+                        </select>
+                    </div>
+
+                    <!-- Story Type -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Story Type</label>
+                        <select id="storyTypeSelect" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                            <option value="any">Any Type</option>
+                            <option value="short">Short Story</option>
+                            <option value="novella">Novella</option>
+                            <option value="novel">Novel</option>
+                            <option value="screenplay">Screenplay</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- User Context Input -->
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-lightbulb mr-2 text-yellow-500"></i>What would you like the story to be about?
+                        <span class="text-xs text-gray-500 ml-2">(Optional - Describe your theme, mood, or specific elements)</span>
+                    </label>
+                    <textarea id="userContext" 
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none" 
+                        rows="3" 
+                        placeholder="e.g., A story about overcoming fear, set during a storm, with themes of betrayal and redemption..."></textarea>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex flex-wrap gap-3">
+                    <button onclick="generateStory()" class="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium">
+                        <i class="fas fa-magic mr-2"></i>Generate Story Idea
+                    </button>
+                    <button onclick="generateMultiple()" class="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium">
+                        <i class="fas fa-layer-group mr-2"></i>Generate 5 Ideas
+                    </button>
+                    <button onclick="randomizeAll()" class="px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors font-medium">
+                        <i class="fas fa-random mr-2"></i>Random All
+                    </button>
+                    <button onclick="clearAll()" class="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium">
+                        <i class="fas fa-trash mr-2"></i>Clear All
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Loading Indicator -->
+        <div id="loadingIndicator" class="hidden mb-8">
+            <div class="bg-white rounded-xl shadow-md p-8 text-center">
+                <div class="inline-flex items-center">
+                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mr-3"></div>
+                    <span class="text-gray-700">AI is generating your story...</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Story Ideas Container -->
+        <section id="storyContainer" class="space-y-6">
+            <!-- Story ideas will be inserted here -->
+        </section>
+
+        <!-- Saved Ideas Section -->
+        <section class="mt-12">
+            <div class="bg-white rounded-xl shadow-md p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-semibold text-gray-800">
+                        <i class="fas fa-bookmark mr-2 text-purple-600"></i>Saved Ideas
+                        <span id="savedCount" class="text-sm text-gray-500 ml-2">(0)</span>
+                    </h2>
+                    <button onclick="clearSaved()" class="text-sm text-red-600 hover:text-red-700">
+                        <i class="fas fa-trash-alt mr-1"></i>Clear All
+                    </button>
+                </div>
+                <div id="savedContainer" class="grid gap-4">
+                    <p class="text-gray-500 text-center py-4">No saved ideas yet. Click the bookmark icon on any story idea to save it.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white mt-16 py-8">
+        <div class="container mx-auto px-4 text-center">
+            <p class="text-gray-400">
+                <i class="fas fa-code mr-2"></i>StoryForge AI © 2024 | Unleash Your Creativity
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // Story Generation Data
+        const storyData = {
+            fantasy: {
+                settings: ['enchanted forest', 'ancient castle', 'magical academy', 'dragon\'s lair', 'floating islands', 'underwater kingdom', 'mystical realm', 'cursed village'],
+                protagonists: ['young wizard apprentice', 'reluctant hero', 'cursed princess', 'rogue thief with heart of gold', 'last dragon rider', 'elf seeking redemption', 'dwarf outcast', 'fae changeling'],
+                conflicts: ['dark prophecy', 'ancient evil awakening', 'magical artifact hunt', 'curse that must be broken', 'king succession crisis', 'interdimensional portal opening', 'magical plague', 'forbidden love'],
+                twists: ['mentor is the villain', 'prophecy misinterpreted', 'magic has a terrible price', 'hero is the chosen one\'s decoy', 'enemy seeks redemption', 'magic system is flawed', 'parallel universe collision', 'time loop trap']
+            },
+            scifi: {
+                settings: ['space station orbiting Earth', 'terraformed Mars colony', 'generation ship traveling to Proxima', 'underwater dome city', 'virtual reality world', 'post-apocalyptic bunker', 'alien planet research outpost', 'cyberpunk metropolis'],
+                protagonists: ['AI gaining consciousness', 'space marine with PTSD', 'time-traveling historian', 'cybernetically enhanced detective', 'last human on Earth', 'alien ambassador', 'quantum physicist', 'rebel freedom fighter'],
+                conflicts: ['AI rebellion', 'alien invasion', 'time paradox', 'resource depletion crisis', 'corporate dystopia', 'genetic engineering gone wrong', 'interstellar war', 'reality simulation glitch'],
+                twists: ['humans are the aliens', 'reality is a simulation', 'AI created humans', 'future is predetermined', 'memories are implants', 'multiple timelines colliding', 'aliens are future humans', 'Earth is a nature preserve']
+            },
+            mystery: {
+                settings: ['foggy London street', 'isolated mansion', 'small coastal town', 'bustling newspaper office', 'vintage bookstore', 'art museum', 'luxury train', 'psychiatric institution'],
+                protagonists: ['retired detective with personal demons', 'amateur sleuth', 'investigative journalist', 'profiler with uncanny intuition', 'insurance investigator', 'forensic scientist', 'private eye with moral code', 'witness in protection'],
+                conflicts: ['unsolved murder', 'missing person case', 'art theft', 'corporate conspiracy', 'serial killer', 'political assassination', 'family secret', 'cold case reopening'],
+                twists: ['victim was alive', 'detective is suspect', 'multiple killers working together', 'crime never happened', 'witness is lying', 'victim planned own death', 'killer is protecting someone', 'case connects to past']
+            },
+            romance: {
+                settings: ['charming Paris café', 'beach resort in Bali', 'small town bookstore', 'Christmas market in Vienna', 'ranch in Montana', 'art gallery in Florence', 'music festival', 'cozy mountain cabin'],
+                protagonists: ['broken-hearted artist', 'workaholic CEO', 'free-spirited traveler', 'single parent', 'veteran with scars', 'aspiring musician', 'chef with dreams', 'teacher finding love'],
+                conflicts: ['opposites attract', 'second chance romance', 'forbidden love', 'long distance relationship', 'fake dating turns real', 'enemies to lovers', 'friends to lovers', 'secret identity'],
+                twists: ['secret baby', 'amnesia', 'mistaken identity', 'family feud', 'past connection revealed', 'hidden royalty', 'time travel', 'destined soulmates']
+            },
+            thriller: {
+                settings: ['abandoned warehouse', 'subway tunnel', 'high-rise building', 'deserted highway', 'stormy night at sea', 'mountain cabin', 'underground bunker', 'crowded airport'],
+                protagonists: ['CIA operative betrayed', 'witness to mob crime', 'parent whose child is kidnapped', 'survivor of plane crash', 'fugitive on the run', 'bodyguard with secret', 'hacker who knows too much', 'soldier left behind'],
+                conflicts: ['terrorist plot', 'conspiracy cover-up', 'manhunt', 'hostage situation', 'bomb threat', 'biological weapon', 'assassination attempt', 'psychological warfare'],
+                twists: ['ally is traitor', 'protagonist has amnesia', 'target is innocent', 'conspiracy is real', 'time bomb counting down', 'double agent', 'trap within trap', 'enemy is closer than expected']
+            },
+            horror: {
+                settings: ['haunted house', 'abandoned asylum', 'dark forest', 'carnival at night', 'underground catacombs', 'isolated research station', 'creepy small town', 'old hotel'],
+                protagonists: ['paranormal investigator', 'teenagers on dare', 'family moving to new home', 'camp counselor', 'urban explorer', 'survivor of previous incident', 'skeptical scientist', 'person with sixth sense'],
+                conflicts: ['demonic possession', 'ancient curse', 'monster stalking', 'psychological breakdown', 'apocalypse beginning', 'cult ritual', 'zombie outbreak', 'ghost seeking revenge'],
+                twists: ['monster is human', 'hallucinations are real', 'protagonist is dead', 'curse is self-inflicted', 'dream within dream', 'multiple personalities', 'time loop of horror', 'evil is contagious']
+            },
+            historical: {
+                settings: ['Victorian London', 'Ancient Rome', 'Medieval castle', 'Wild West town', 'Roaring Twenties New York', 'Civil War battlefield', 'Renaissance Florence', 'Viking village'],
+                protagonists: ['rebel leader', 'inventor ahead of time', 'spy in enemy court', 'immigrant seeking new life', 'nurse during war', 'artist challenging norms', 'merchant on silk road', 'scholar preserving knowledge'],
+                conflicts: ['revolution brewing', 'war declaration', 'plague outbreak', 'social injustice', 'political intrigue', 'religious persecution', 'economic crisis', 'cultural clash'],
+                twists: ['time traveler present', 'historical figure not who we thought', 'lost civilization discovered', 'prophecy fulfilled', 'technology from future', 'secret society revealed', 'alternate timeline', 'history rewritten']
+            },
+            comedy: {
+                settings: ['chaotic office', 'dysfunctional family home', 'reality TV show set', 'wedding gone wrong', 'road trip adventure', 'high school reunion', 'apartment building', 'vacation resort'],
+                protagonists: ['awkward introvert', 'overconfident idiot', 'sarcastic cynic', 'clumsy optimist', 'con artist with heart', 'perfectionist mess', 'dramatic teenager', 'grandparent with secrets'],
+                conflicts: ['mistaken identity', 'outrageous bet', 'competition gone wrong', 'wedding disaster', 'vacation from hell', 'roommate from hell', 'family gathering chaos', 'workplace prank war'],
+                twists: ['prank backfires spectacularly', 'secret revealed at worst time', 'unexpected hero emerges', 'plan falls apart hilariously', 'character learns wrong lesson', 'success by accident', 'role reversal', 'fourth wall break']
+            }
+        };
+
+        const storyTypes = {
+            short: 'A concise tale perfect for a quick, impactful read with focused character development and a single, compelling plotline.',
+            novella: 'A medium-length story allowing for deeper character exploration and subplot development while maintaining narrative momentum.',
+            novel: 'An epic journey with multiple story arcs, rich character development, and intricate world-building opportunities.',
+            screenplay: 'A visual narrative structured for the screen, emphasizing dialogue, action, and cinematic storytelling techniques.'
+        };
+
+        let savedIdeas = JSON.parse(localStorage.getItem('savedStoryIdeas')) || [];
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            updateSavedCount();
+            displaySavedIdeas();
+        });
+
+        function generateStory() {
+            showLoading();
+            
+            setTimeout(() => {
+                const genre = document.getElementById('genreSelect').value;
+                const complexity = document.getElementById('complexitySelect').value;
+                const storyType = document.getElementById('storyTypeSelect').value;
+                const userContext = document.getElementById('userContext').value;
+                
+                const storyIdea = createStoryIdea(genre, complexity, storyType, userContext);
+                displayStory([storyIdea]);
+                hideLoading();
+            }, 1500);
+        }
+
+        function generateMultiple() {
+            showLoading();
+            
+            setTimeout(() => {
+                const stories = [];
+                const genre = document.getElementById('genreSelect').value;
+                const complexity = document.getElementById('complexitySelect').value;
+                const storyType = document.getElementById('storyTypeSelect').value;
+                const userContext = document.getElementById('userContext').value;
+                
+                for (let i = 0; i < 5; i++) {
+                    stories.push(createStoryIdea(genre, complexity, storyType, userContext));
+                }
+                
+                displayStory(stories);
+                hideLoading();
+            }, 2000);
+        }
+
+        function createStoryIdea(genre, complexity, storyType, userContext = '') {
+            const actualGenre = genre === 'any' ? getRandomGenre() : genre;
+            const actualStoryType = storyType === 'any' ? getRandomStoryType() : storyType;
+            const genreData = storyData[actualGenre];
+            
+            const setting = getRandomElement(genreData.settings);
+            const protagonist = getRandomElement(genreData.protagonists);
+            const conflict = getRandomElement(genreData.conflicts);
+            const twist = getRandomElement(genreData.twists);
+            
+            const characterCount = complexity === 'simple' ? 2 : complexity === 'moderate' ? 3 : 5;
+            const characters = generateCharacters(characterCount, actualGenre);
+            
+            const title = generateTitle(actualGenre, protagonist, setting, userContext);
+            const hook = generateHook(protagonist, setting, conflict, userContext);
+            const development = generateDevelopment(conflict, twist, complexity, userContext);
+            const themes = generateThemes(actualGenre, userContext);
+            
+            return {
+                id: Date.now() + Math.random(),
+                title,
+                genre: actualGenre,
+                storyType: actualStoryType,
+                complexity,
+                hook,
+                setting,
+                protagonist,
+                characters,
+                conflict,
+                twist,
+                development,
+                themes,
+                userContext,
+                description: storyTypes[actualStoryType]
+            };
+        }
+
+        function generateTitle(genre, protagonist, setting, userContext = '') {
+            const contextKeywords = extractKeywords(userContext);
+            const titleTemplates = [
+                `The ${protagonist.split(' ')[1] || 'Hero'} of ${setting.split(' ')[0]}`,
+                `When ${setting.split(' ')[0]} Calls`,
+                `Echoes in ${setting}`,
+                `The Last ${protagonist.split(' ').pop()}`,
+                `${setting.split(' ')[0]}'s Secret`,
+                `Beyond the ${setting.split(' ')[0]}`,
+                `The ${protagonist.split(' ')[0]} Who ${['Dared', 'Dreamed', 'Fought', 'Loved', 'Survived'][Math.floor(Math.random() * 5)]}`,
+                `${setting.split(' ')[0]} and ${['Shadows', 'Light', 'Dreams', 'Nightmares', 'Hope'][Math.floor(Math.random() * 5)]}`
+            ];
+            
+            if (userContext && contextKeywords.length > 0) {
+                const keyword = contextKeywords[Math.floor(Math.random() * contextKeywords.length)];
+                titleTemplates.push(
+                    `The ${keyword} of ${setting.split(' ')[0]}`,
+                    `${keyword}'s ${['Revenge', 'Journey', 'Awakening', 'Legacy', 'Curse'][Math.floor(Math.random() * 5)]}`,
+                    `When ${keyword} ${['Falls', 'Rises', 'Calls', 'Returns'][Math.floor(Math.random() * 4)]}`
+                );
+            }
+            
+            return getRandomElement(titleTemplates);
+        }
+
+        function generateHook(protagonist, setting, conflict, userContext = '') {
+            const contextKeywords = extractKeywords(userContext);
+            const hooks = [
+                `In ${setting}, a ${protagonist} discovers that ${conflict} will change everything they thought they knew.`,
+                `When ${conflict} threatens ${setting}, only a ${protagonist} can prevent disaster.`,
+                `A ${protagonist} in ${setting} never expected to face ${conflict}, but destiny has other plans.`,
+                `${setting} holds a dark secret: ${conflict} is coming, and a ${protagonist} is the only one who sees the truth.`,
+                `The peaceful life of a ${protagonist} in ${setting} is shattered when ${conflict} arrives.`
+            ];
+            
+            if (userContext && contextKeywords.length > 0) {
+                const keyword = contextKeywords[Math.floor(Math.random() * contextKeywords.length)];
+                hooks.push(
+                    `In a world where ${keyword} defines destiny, a ${protagonist} in ${setting} must face ${conflict}.`,
+                    `When ${keyword} meets ${conflict} in ${setting}, a ${protagonist} discovers their true purpose.`,
+                    `The ${keyword} that haunts ${setting} becomes real when ${conflict} threatens everything a ${protagonist} holds dear.`
+                );
+            }
+            
+            return getRandomElement(hooks);
+        }
+
+        function generateDevelopment(conflict, twist, complexity, userContext = '') {
+            const contextKeywords = extractKeywords(userContext);
+            const developments = {
+                simple: [
+                    `The story follows a direct path to resolving ${conflict}, but ${twist} changes the final outcome.`,
+                    `A straightforward confrontation with ${conflict} leads to an unexpected resolution when ${twist}.`,
+                    `The protagonist must overcome ${conflict} through determination, only to discover ${twist}.`
+                ],
+                moderate: [
+                    `Multiple attempts to solve ${conflict} lead to dead ends, until ${twist} reveals the true path forward.`,
+                    `The protagonist gathers allies to face ${conflict}, but ${twist} tests their loyalties and resolve.`,
+                    `As ${conflict} escalates, the protagonist must make difficult choices, ultimately discovering ${twist}.`
+                ],
+                complex: [
+                    `A web of interconnected plots surrounding ${conflict} unfolds, with ${twist} connecting seemingly unrelated events.`,
+                    `The protagonist navigates political intrigue and personal relationships while confronting ${conflict}, culminating in ${twist}.`,
+                    `Multiple perspectives on ${conflict} create moral ambiguity, resolved only when ${twist} changes everything.`
+                ]
+            };
+            
+            if (userContext && contextKeywords.length > 0) {
+                const keyword = contextKeywords[Math.floor(Math.random() * contextKeywords.length)];
+                Object.keys(developments).forEach(level => {
+                    developments[level].push(
+                        `The journey through ${keyword} shapes the protagonist's approach to ${conflict}, leading to the revelation that ${twist}.`,
+                        `As ${keyword} influences every decision, the confrontation with ${conflict} becomes inevitable, culminating in ${twist}.`
+                    );
+                });
+            }
+            
+            return getRandomElement(developments[complexity]);
+        }
+
+        function generateThemes(genre, userContext = '') {
+            const contextKeywords = extractKeywords(userContext);
+            const themeMap = {
+                fantasy: ['Power and corruption', 'Destiny vs free will', 'Sacrifice and redemption', 'Nature vs civilization'],
+                scifi: ['Humanity and technology', 'Identity and consciousness', 'Exploration and discovery', 'Survival and adaptation'],
+                mystery: ['Truth and deception', 'Justice and morality', 'Past and present', 'Trust and betrayal'],
+                romance: ['Love and sacrifice', 'Second chances', 'Overcoming obstacles', 'Self-discovery'],
+                thriller: ['Survival instinct', 'Trust and paranoia', 'Justice and revenge', 'Courage under pressure'],
+                horror: ['Fear and courage', 'Isolation and connection', 'Reality and illusion', 'Life and death'],
+                historical: ['Progress and tradition', 'War and peace', 'Individual vs society', 'Change and continuity'],
+                comedy: ['Absurdity and reality', 'Success and failure', 'Love and laughter', 'Chaos and order']
+            };
+            
+            let themes = [...themeMap[genre]];
+            
+            if (userContext && contextKeywords.length > 0) {
+                const keyword = contextKeywords[Math.floor(Math.random() * contextKeywords.length)];
+                themes.push(
+                    `The nature of ${keyword}`,
+                    `${keyword} and transformation`,
+                    `Redemption through ${keyword}`,
+                    `The cost of ${keyword}`,
+                    `${keyword} as destiny`
+                );
+            }
+            
+            return getRandomElement(themes);
+        }
+
+        function extractKeywords(text) {
+            if (!text) return [];
+            
+            // Extract meaningful keywords from user context
+            const keywords = text.toLowerCase()
+                .replace(/[^\w\s]/g, ' ')
+                .split(/\s+/)
+                .filter(word => word.length > 3)
+                .filter(word => !['about', 'story', 'like', 'would', 'with', 'theme', 'themes', 'during', 'that', 'this', 'from', 'they', 'have', 'been', 'some', 'what', 'when', 'where', 'will', 'your'].includes(word));
+            
+            // Remove duplicates and return up to 5 keywords
+            return [...new Set(keywords)].slice(0, 5);
+        }
+
+        function generateCharacters(count, genre) {
+            const archetypes = {
+                fantasy: ['wise mentor', 'trickster', 'dark lord', 'innocent youth', 'reformed villain'],
+                scifi: ['mad scientist', 'rogue AI', 'space pirate', 'alien ambassador', 'cybernetic warrior'],
+                mystery: ['femme fatale', 'hardboiled detective', 'eccentric millionaire', 'nosy reporter', 'corrupt official'],
+                romance: ['best friend', 'ex-lover', 'protective sibling', 'charming rival', 'wise parent'],
+                thriller: ['double agent', 'mastermind', 'innocent bystander', 'reluctant hero', 'ruthless killer'],
+                horror: ['final girl', 'creepy child', 'possessed victim', 'crazy old man', 'mysterious stranger'],
+                historical: ['revolutionary', 'nobleman', 'peasant', 'scholar', 'warrior'],
+                comedy: ['sidekick', 'straight man', 'comic relief', 'villain with soft spot', 'clueless boss']
+            };
+            
+            const characters = [];
+            const availableArchetypes = [...archetypes[genre]];
+            
+            for (let i = 0; i < count; i++) {
+                const archetype = availableArchetypes.splice(Math.floor(Math.random() * availableArchetypes.length), 1)[0];
+                characters.push({
+                    role: archetype,
+                    motivation: ['seeks revenge', 'searches for truth', 'wants power', 'desires love', 'needs redemption', 'craves justice', 'hunts treasure', 'protects family'][Math.floor(Math.random() * 8)]
+                });
+            }
+            
+            return characters;
+        }
+
+        function displayStory(stories) {
+            const container = document.getElementById('storyContainer');
+            
+            stories.forEach((story, index) => {
+                const storyCard = document.createElement('div');
+                storyCard.className = 'bg-white rounded-xl shadow-md p-6 card-hover fade-in';
+                storyCard.innerHTML = `
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <h3 class="text-2xl font-bold text-gray-800 mb-2">${story.title}</h3>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm font-medium">
+                                    <i class="fas fa-book mr-1"></i>${story.genre.charAt(0).toUpperCase() + story.genre.slice(1)}
+                                </span>
+                                <span class="px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-sm font-medium">
+                                    <i class="fas fa-layer-group mr-1"></i>${story.complexity.charAt(0).toUpperCase() + story.complexity.slice(1)}
+                                </span>
+                                <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium">
+                                    <i class="fas fa-file-alt mr-1"></i>${story.storyType.charAt(0).toUpperCase() + story.storyType.slice(1)}
+                                </span>
+                            </div>
+                        </div>
+                        <button onclick="saveIdea(${story.id})" class="text-gray-400 hover:text-yellow-500 transition-colors">
+                            <i class="far fa-bookmark text-xl"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        ${story.userContext ? `
+                        <div>
+                            <h4 class="font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-lightbulb mr-2 text-yellow-500"></i>Your Context
+                            </h4>
+                            <p class="text-gray-600 bg-yellow-50 p-3 rounded-lg border border-yellow-200">${story.userContext}</p>
+                        </div>` : ''}
+                        
+                        <div>
+                            <h4 class="font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-hook mr-2 text-purple-600"></i>Story Hook
+                            </h4>
+                            <p class="text-gray-600">${story.hook}</p>
+                        </div>
+                        
+                        <div>
+                            <h4 class="font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-map-marker-alt mr-2 text-purple-600"></i>Setting
+                            </h4>
+                            <p class="text-gray-600">${story.setting}</p>
+                        </div>
+                        
+                        <div>
+                            <h4 class="font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-user mr-2 text-purple-600"></i>Main Character
+                            </h4>
+                            <p class="text-gray-600">${story.protagonist}</p>
+                        </div>
+                        
+                        <div>
+                            <h4 class="font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-users mr-2 text-purple-600"></i>Supporting Characters
+                            </h4>
+                            <div class="grid grid-cols-2 gap-2">
+                                ${story.characters.map(char => 
+                                    `<div class="bg-gray-50 p-2 rounded">
+                                        <span class="font-medium text-gray-700">${char.role}</span>
+                                        <span class="text-gray-500 text-sm block">- ${char.motivation}</span>
+                                    </div>`
+                                ).join('')}
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h4 class="font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-bolt mr-2 text-purple-600"></i>Central Conflict
+                            </h4>
+                            <p class="text-gray-600">${story.conflict}</p>
+                        </div>
+                        
+                        <div>
+                            <h4 class="font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-exclamation-triangle mr-2 text-purple-600"></i>Plot Twist
+                            </h4>
+                            <p class="text-gray-600">${story.twist}</p>
+                        </div>
+                        
+                        <div>
+                            <h4 class="font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-route mr-2 text-purple-600"></i>Story Development
+                            </h4>
+                            <p class="text-gray-600">${story.development}</p>
+                        </div>
+                        
+                        <div>
+                            <h4 class="font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-palette mr-2 text-purple-600"></i>Central Theme
+                            </h4>
+                            <p class="text-gray-600">${story.themes}</p>
+                        </div>
+                        
+                        <div>
+                            <h4 class="font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-info-circle mr-2 text-purple-600"></i>Story Type Details
+                            </h4>
+                            <p class="text-gray-600">${story.description}</p>
+                        </div>
+                    </div>
+                `;
+                
+                container.appendChild(storyCard);
+            });
+        }
+
+        function saveIdea(storyId) {
+            const storyCards = document.querySelectorAll('#storyContainer > div');
+            let storyToSave = null;
+            
+            storyCards.forEach(card => {
+                if (card.innerHTML.includes(`saveIdea(${storyId})`)) {
+                    const title = card.querySelector('h3').textContent;
+                    const content = card.innerHTML;
+                    storyToSave = { id: storyId, title, content, savedAt: new Date().toISOString() };
+                }
+            });
+            
+            if (storyToSave && !savedIdeas.find(s => s.id === storyId)) {
+                savedIdeas.push(storyToSave);
+                localStorage.setItem('savedStoryIdeas', JSON.stringify(savedIdeas));
+                updateSavedCount();
+                displaySavedIdeas();
+                
+                // Change bookmark icon
+                event.target.classList.remove('far');
+                event.target.classList.add('fas', 'text-yellow-500');
+            }
+        }
+
+        function displaySavedIdeas() {
+            const container = document.getElementById('savedContainer');
+            
+            if (savedIdeas.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 text-center py-4">No saved ideas yet. Click the bookmark icon on any story idea to save it.</p>';
+                return;
+            }
+            
+            container.innerHTML = savedIdeas.map(idea => `
+                <div class="bg-gray-50 rounded-lg p-4 relative">
+                    <button onclick="removeSaved(${idea.id})" class="absolute top-2 right-2 text-red-500 hover:text-red-700">
+                        <i class="fas fa-times"></i>
+                    </button>
+                    <h4 class="font-semibold text-gray-800 mb-2">${idea.title}</h4>
+                    <p class="text-sm text-gray-500">Saved ${new Date(idea.savedAt).toLocaleDateString()}</p>
+                </div>
+            `).join('');
+        }
+
+        function removeSaved(id) {
+            savedIdeas = savedIdeas.filter(idea => idea.id !== id);
+            localStorage.setItem('savedStoryIdeas', JSON.stringify(savedIdeas));
+            updateSavedCount();
+            displaySavedIdeas();
+        }
+
+        function clearSaved() {
+            if (confirm('Are you sure you want to clear all saved ideas?')) {
+                savedIdeas = [];
+                localStorage.setItem('savedStoryIdeas', JSON.stringify(savedIdeas));
+                updateSavedCount();
+                displaySavedIdeas();
+            }
+        }
+
+        function updateSavedCount() {
+            document.getElementById('savedCount').textContent = `(${savedIdeas.length})`;
+        }
+
+        function randomizeAll() {
+            document.getElementById('genreSelect').value = 'any';
+            document.getElementById('complexitySelect').value = ['simple', 'moderate', 'complex'][Math.floor(Math.random() * 3)];
+            document.getElementById('storyTypeSelect').value = 'any';
+            generateStory();
+        }
+
+        function clearAll() {
+            if (confirm('Clear all generated story ideas?')) {
+                document.getElementById('storyContainer').innerHTML = '';
+            }
+        }
+
+        function showLoading() {
+            document.getElementById('loadingIndicator').classList.remove('hidden');
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingIndicator').classList.add('hidden');
+        }
+
+        // Utility functions
+        function getRandomElement(array) {
+            return array[Math.floor(Math.random() * array.length)];
+        }
+
+        function getRandomGenre() {
+            const genres = Object.keys(storyData);
+            return getRandomElement(genres);
+        }
+
+        function getRandomStoryType() {
+            const types = Object.keys(storyTypes);
+            return getRandomElement(types);
+        }
+    </script>
+</body>
+</html>
